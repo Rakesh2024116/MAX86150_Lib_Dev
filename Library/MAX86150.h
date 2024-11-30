@@ -2,6 +2,7 @@
 #define MAX86150_H
 
 #include <stdint.h>
+#include <string.h>
 #include <stm32f1xx_hal.h>
 
 /*Sensor I2C Address*/
@@ -66,9 +67,14 @@
 #define FIFO_dataCtrl2      0x0A    // FIFO Data Control Register 2
 
 /*Function Prototypes*/
+/**
+  * @brief  Sensor initialization function
+  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+  *                the configuration information for the specified I2C.
+  * @note   This function is used to initialize the MAX86150 sensor.
+  * @retval 0 -> Success
+  *         1 -> Fail
+  */
 uint8_t init_MAX86150(I2CHandleTypeDef *hi2c); // Initialize MAX86150 sensor
-
-
-
 
 #endif
