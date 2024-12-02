@@ -29,7 +29,15 @@ uint8_t init_MAX86150(I2CHandleTypeDef *hi2c)
             HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, FIFO_dataCtrl2, I2C_MEMADD_SIZE_8BIT, ECG_Mode, 1, i2c_timeout);
             
             //PPG and ECG Configuration
-            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, PPG_Config1, I2C_MEMADD_SIZE_8BIT, 0x00, 1, i2c_timeout);
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, PPG_Config1, I2C_MEMADD_SIZE_8BIT, 0x93, 1, i2c_timeout);
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, PPG_Config2, I2C_MEMADD_SIZE_8BIT, 0x04, 1, i2c_timeout);
+
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, LED_RGE, I2C_MEMADD_SIZE_8BIT, 0x00, 1, i2c_timeout);
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, LED1_PA, I2C_MEMADD_SIZE_8BIT, 0xFF, 1, i2c_timeout);
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, LED2_PA, I2C_MEMADD_SIZE_8BIT, 0xFF, 1, i2c_timeout);
+
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, ECG_Config1, I2C_MEMADD_SIZE_8BIT, 0x00, 1, i2c_timeout);
+            HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, ECG_Config3, I2C_MEMADD_SIZE_8BIT, 0x00, 1, i2c_timeout);
             
         }
         else

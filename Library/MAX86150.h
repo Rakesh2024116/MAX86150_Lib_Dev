@@ -23,8 +23,6 @@
 #define LED2_PA         0x12    // Red Pulse Amplitude
 
 #define LED_RGE         0x14    // LED Range control address
-#define LED_RGE_50mA    0x00    // Led current 50mA
-#define LED_RGE_100mA   0x01    // Led current 100mA
 
 #define LED_PILOT_PA    0x15    // LED Proximity mode Pulse Amplitude
 
