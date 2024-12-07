@@ -6,6 +6,7 @@
 #include <stm32f1xx_hal.h>
 
 /*Sensor I2C Address*/
+#define I2C_ADDR        0x5E    //sensor I2C address
 #define MAX_Read_addr   0xBD    //sensor read address
 #define MAX_Write_addr  0xBC    // sensor write address
 
@@ -64,6 +65,9 @@
 #define FIFO_dataCtrl1      0x09    // FIFO Data Control Register 1
 #define FIFO_dataCtrl2      0x0A    // FIFO Data Control Register 2
 
+#define FIFO_CAPACITY       32      // Maximum samples in FIFO
+
+
 /*Function Prototypes*/
 /**
   * @brief  Sensor initialization function
@@ -73,6 +77,9 @@
   * @retval 0 -> Success
   *         1 -> Fail
   */
+
+
 uint8_t init_MAX86150(I2CHandleTypeDef *hi2c); // Initialize MAX86150 sensor
+uint8_t readData(I2CHandleTypeDef *hi2c);
 
 #endif
