@@ -6,7 +6,6 @@
 #include <stm32f1xx_hal.h>
 
 /*Sensor I2C Address*/
-#define I2C_ADDR        0x5E    //sensor I2C address
 #define MAX_Read_addr   0xBD    //sensor read address
 #define MAX_Write_addr  0xBC    // sensor write address
 
@@ -67,6 +66,17 @@
 
 #define FIFO_CAPACITY       32      // Maximum samples in FIFO
 
+/**
+ * @brief Struct to hold sample data from the MAX86150 sensor.
+ * This struct contains three 8-bit fields to hold the LED1, LED2, and ECG data samples.
+ */
+typedef struct
+{
+    uint32_t led1;    ///< LED1 data sample
+    uint32_t led2;    ///< LED2 data sample
+    uint32_t ecg;     ///< ECG data sample
+} MAX86150_samples;
+
 
 /*Function Prototypes*/
 /**
@@ -80,6 +90,6 @@
 
 
 uint8_t init_MAX86150(I2CHandleTypeDef *hi2c); // Initialize MAX86150 sensor
-uint8_t readData(I2CHandleTypeDef *hi2c);
+uint8_t readData(I2CHandleTypeDef *hi2c, MAX86150_samples *samples); // Read data from MAX86150 sensor
 
 #endif

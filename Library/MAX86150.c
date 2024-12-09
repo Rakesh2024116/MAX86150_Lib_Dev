@@ -8,16 +8,6 @@
 
 const uint16_t i2c_timeout = 100;
 
-/**
- * @brief Struct to hold sample data from the MAX86150 sensor.
- * This struct contains three 8-bit fields to hold the LED1, LED2, and ECG data samples.
- */
-typedef struct
-{
-    uint8_t led1;    ///< LED1 data sample
-    uint8_t led2;    ///< LED2 data sample
-    uint8_t ecg;     ///< ECG data sample
-} MAX86150_samples;
 
 uint8_t init_MAX86150(I2CHandleTypeDef *hi2c)
 {
@@ -72,25 +62,23 @@ uint8_t readData(I2CHandleTypeDef *hi2c, MAX86150_samples *samples)
     uint8_t fifo_wr_ptr = 0;
     uint8_t fifo_rd_ptr = 0;
     uint8_t ovf_counter = 0;
-    uint8_t available_samples = 0;
     uint8_t num_samples_to_read = 0;
     uint8_t num_available_bytes = 0;
 
      // Step 1: Read FIFO_WR_PTR
-    if (HAL_I2C_Mem_Read(hi2c, I2C_ADDR << 1, FIFO_Wr_ptr, I2C_MEMADD_SIZE_8BIT, &fifo_wr_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
+    if (HAL_I2C_Mem_Read(hi2c, MAX_Read_addr, FIFO_Wr_ptr, I2C_MEMADD_SIZE_8BIT, &fifo_wr_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
         return 0;
     }
-
-    // Step 2: Read OVF_COUNTER
-    if (HAL_I2C_Mem_Read(hi2c, I2C_ADDR << 1, Overflow_cntr, I2C_MEMADD_SIZE_8BIT, &ovf_counter, 1, HAL_MAX_DELAY) != HAL_OK) {
+    // Step 2: Read FIFO_RD_PTR
+    if (HAL_I2C_Mem_Read(hi2c, MAX_Read_addr, FIFO_Rd_ptr, I2C_MEMADD_SIZE_8BIT, &fifo_rd_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
         return 0;
     }
-
-    // Step 3: Read FIFO_RD_PTR
-    if (HAL_I2C_Mem_Read(hi2c, I2C_ADDR << 1, FIFO_Rd_ptr, I2C_MEMADD_SIZE_8BIT, &fifo_rd_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
+    // Step 3: Read OVF_COUNTER
+    if (HAL_I2C_Mem_Read(hi2c, MAX_Read_addr, Overflow_cntr, I2C_MEMADD_SIZE_8BIT, &ovf_counter, 1, HAL_MAX_DELAY) != HAL_OK) {
         return 0;
     }
     // Step 4: Evaluate the number of available samples
+    uint8_t available_samples = 0;
     if (ovf_counter == 0) {
         if (fifo_wr_ptr >= fifo_rd_ptr) {
             available_samples = fifo_wr_ptr - fifo_rd_ptr;
@@ -107,7 +95,7 @@ uint8_t readData(I2CHandleTypeDef *hi2c, MAX86150_samples *samples)
 
         // Option 1: Skip leftover bytes (adjust FIFO_RD_PTR)
         uint8_t new_fifo_rd_ptr = (fifo_rd_ptr + leftover_bytes) % FIFO_CAPACITY;
-        if (HAL_I2C_Mem_Write(hi2c, I2C_ADDR << 1, FIFO_Rd_ptr, I2C_MEMADD_SIZE_8BIT, &new_fifo_rd_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
+        if (HAL_I2C_Mem_Write(hi2c, MAX_Write_addr, FIFO_Rd_ptr, I2C_MEMADD_SIZE_8BIT, &new_fifo_rd_ptr, 1, HAL_MAX_DELAY) != HAL_OK) {
             return 0;  // Failed to adjust read pointer
         }
 
@@ -118,6 +106,18 @@ uint8_t readData(I2CHandleTypeDef *hi2c, MAX86150_samples *samples)
     // Limit the number of samples to read to the available samples or the maximum buffer size
     num_samples_to_read = (available_samples < max_samples) ? available_samples : max_samples;
 
+    // Step 5: Read the samples from the FIFO
+    uint8_t samples_buffer[9];
+    for (uint8_t i = 0; i < num_samples_to_read; i++)
+    {
+        if (HAL_I2C_Mem_Read(hi2c, MAX_Read_addr, FIFO_DATA, I2C_MEMADD_SIZE_8BIT, samples_buffer, 9, HAL_MAX_DELAY) != HAL_OK) {
+            return i; // Return the number of samples successfully read
+        }
+
+        samples[i].led1 = (uint32_t)((samples_buffer[0] << 16) | (samples_buffer[1] << 8) | samples_buffer[2]);
+        samples[i].led2 = (uint32_t)((samples_buffer[3] << 16) | (samples_buffer[4] << 8) | samples_buffer[5]);
+        samples[i].ecg = (uint32_t)((samples_buffer[6] << 16) | (samples_buffer[7] << 8) | samples_buffer[8]);  
+    }
 
 }
 
