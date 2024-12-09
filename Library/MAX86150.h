@@ -89,7 +89,7 @@ typedef struct
   */
 
 
-uint8_t init_MAX86150(I2CHandleTypeDef *hi2c); // Initialize MAX86150 sensor
-uint8_t readData(I2CHandleTypeDef *hi2c, MAX86150_samples *samples); // Read data from MAX86150 sensor
+uint8_t init_MAX86150(I2C_HandleTypeDef *hi2c); // Initialize MAX86150 sensor
+uint8_t readData(I2C_HandleTypeDef *hi2c, MAX86150_samples *samples); // Read data from MAX86150 sensor
 
 #endif
